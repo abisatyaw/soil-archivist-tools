@@ -1,0 +1,12 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+      {
+        "name": "Python: Flet App",
+        "type": "python",
+        "request": "launch",
+        "program": "${workspaceFolder}/main.py",  // path to your main script
+        "console": "integratedTerminal"
+      }
+    ]
+  }

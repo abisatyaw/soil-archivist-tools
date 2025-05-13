@@ -1,4 +1,4 @@
-# Gtatool app
+# soil-archivist-tool app
 
 ## Run the app
 

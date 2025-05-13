@@ -43,7 +43,7 @@ def extract_column_from_sheet(file_path: str, sheet_name: str, column_names: lis
     except Exception as e:
         raise RuntimeError(f"Unexpected error: {e}")
     
-def process_excel(input_file_path: str, output_file_path:str, column: str):
+def process_excel(input_file_path: str, column_map: dict, reference: dict):
     """
     Write data to a new Excel file.
     lithology
@@ -60,40 +60,27 @@ def process_excel(input_file_path: str, output_file_path:str, column: str):
     - column_name (str): Name of the column in the sheet.
     """
     try:
-        input_columns = ["Bore", "Depth1", "Depth2", "Keyword", "Comment"]
-        output_columns = ["* Name [-]", "Depth top [m]", "Depth bottom [m]", "Lithology [-]", "Remarks lithology [-]"]
-        column_map = dict(zip(input_columns, output_columns))
-
-        data_dictionary = extract_column_from_sheet(input_file_path, sheet_name="Lithology", column_names=input_columns)
-        # Ensure all lists have the same length by filling with empty strings if needed
-        max_length = max(len(lst) for lst in data_dictionary.values())
-
+        print(column_map.keys())
+        data_dictionary = extract_column_from_sheet(input_file_path, sheet_name="Lithology", column_names=column_map.keys())
         df = pd.DataFrame(data_dictionary)
         df.rename(columns=column_map, inplace=True)
 
-        write_real_excel_table(df, "real_excel_table.xlsx")
+        write_excel_table(df, output_path=reference['output_path'], sheet_name=reference['sheet_name'],)
 
     except Exception as e:
         raise RuntimeError(f"Unexpected error: {e}")
     
-def write_real_excel_table(df, output_path, sheet_name="Sheet1", table_name="Table1"):
-    # Create a new workbook and worksheet
+def write_excel_table(df, output_path="output1.xlsx", sheet_name="Sheet1", table_name="Table1"):
     wb = Workbook()
     ws = wb.active
     ws.title = sheet_name
-
-    # Write DataFrame rows (including header)
     for r in dataframe_to_rows(df, index=False, header=True):
         ws.append(r)
-
-    # Compute table range
     max_row = ws.max_row
     max_col = ws.max_column
     start_cell = "A1"
     end_col = ws.cell(row=1, column=max_col).column_letter
     table_range = f"A1:{end_col}{max_row}"
-
-    # Create and style the Excel table
     table = Table(displayName=table_name, ref=table_range)
     style = TableStyleInfo(
         name="TableStyleMedium9",
@@ -104,24 +91,40 @@ def write_real_excel_table(df, output_path, sheet_name="Sheet1", table_name="Tab
     )
     table.tableStyleInfo = style
     ws.add_table(table)
-
-    # Save workbook to file
     wb.save(output_path)
     print("Written to REAL")
 
-def test():
-    file = "src\\203935 Grimsby Riverside - Soil data 1.xlsx"
-    output_file_path = "out.xlsx"
-    sheet = "Lithology"
-    column = "Keyword"
+def lithology_extract():
+    input_file = "src\\203935 Grimsby Riverside - Soil data 1.xlsx"
+    input_columns = ["Bore", "Depth1", "Depth2", "Keyword", "Comment"]
+    output_columns = ["* Name [-]", "Depth top [m]", "Depth bottom [m]", "Lithology [-]", "Remarks lithology [-]"]
+    column_map = dict(zip(input_columns, output_columns))
 
+    reference = {
+        "sheet_name":"INPUT Lithology",
+        "output_path":"Lithology_Input_Template_rev2.xlsx"
+    }
     try:
-        process_excel(file, output_file_path, column)
+        process_excel(input_file, column_map, reference)
     except Exception as e:
         print(f"Error: {e}")
-    
 
+def borehole_extract():
+    input_file = "src\\203935 Grimsby Riverside - Soil data 1.xlsx"
+    input_columns = []
+    output_columns = []
+    column_map = dict(zip(input_columns, output_columns))
 
+    reference = {
+        "sheet_name":"INPUT Borehole",
+        "output_path":"Borehole_Base_input_Template_rev2.xlsx"
+    }
+    try:
+        process_excel(input_file, column_map, reference)
+    except Exception as e:
+        print(f"Error: {e}")
+
+#############################
 if __name__ == "__main__":
     test()
     print("complete")

@@ -25,7 +25,7 @@ def extract_column_from_sheet(file_path: str, sheet_name: str, input_columns: li
     missing_columns = [col for col in input_columns if col not in df.columns]
     if missing_columns:
         raise ValueError(f"Columns not found in sheet '{sheet_name}': {missing_columns}")
-        
+    df.dropna(how='all', inplace=True)    
     extracted_data = {
         col: df[col].tolist()
         for col in input_columns
@@ -57,11 +57,11 @@ def process_additional_columns(data, additional_columns):
         if column =="Test Date [DD-MM-YYYY]":
             data[column] = "0"
         if column =="AGS Code":
-            data[column] = "=INDEX(Test_results[[#All],[AGS Code]],MATCH(Pointdata[@[Parameter]],Test_results[[#All],[Test name]],0))"
+            data[column] = "{@}INDEX(Test_results[[#All];[AGS Code]];MATCH([@Parameter];Test_results[[#All];[Test name]];0))"
         if column =="Unit":
-            data[column] = "=INDEX(Test_results[[#All],[Unit]],MATCH(Pointdata[@[Parameter]],Test_results[[#All],[Test name]],0))"
+            data[column] = "{@}INDEX(Test_results[[#All];[Unit]];MATCH([@Parameter];Test_results[[#All];[Test name]];0))"
         if column =="Accuracy":
-            data[column] = "=INDEX(Test_results[[#All],[Accuracy]],MATCH(Pointdata[@[Parameter]],Test_results[[#All],[Test name]],0))"
+            data[column] = "{@}INDEX(Test_results[[#All];[Accuracy]];MATCH([@Parameter];Test_results[[#All];[Test name]];0))"
 
 def process_excel(input_file_path: str, column_map: dict, reference: dict):
     """
@@ -172,7 +172,7 @@ def soil_extract(input_file):
         "input_sheet":"Interval",
         "output_sheet":"INPUT Soil Test",
         "output_path":"Soil_Test_Input_Template_rev2.xlsx",
-        "additional_input_file":"src\\input\\Soil Test List.xlsx",
+        "additional_input_file":"C:\\Workspace\\gtatool\\src\\input\\soil test reference list.xlsx",
         "additional_input_sheet":"List",
         "additional_table":"Test_results",
         "additional_input_columns": ["Test name", "AGS Code", "Unit", "Accuracy", "Type (for sorting)", "Remarks"]
@@ -181,8 +181,8 @@ def soil_extract(input_file):
 
 def test():
     input_file = "C:\\Workspace\\gtatool\\src\\input\\203935 Grimsby Riverside - Soil data 1.xlsx"
-    lithology_extract(input_file)
-    borehole_extract(input_file)
+    # lithology_extract(input_file)
+    # borehole_extract(input_file)
     soil_extract(input_file)
 
 if __name__ == "__main__":

@@ -180,9 +180,9 @@ def soil_extract(input_file):
     process_excel(input_file, column_map, reference)
 
 def test():
-    input_file = "src\\203935 Grimsby Riverside - Soil data 1.xlsx"
-    # lithology_extract(input_file)
-    # borehole_extract(input_file)
+    input_file = "C:\\Workspace\\gtatool\\src\\input\\203935 Grimsby Riverside - Soil data 1.xlsx"
+    lithology_extract(input_file)
+    borehole_extract(input_file)
     soil_extract(input_file)
 
 if __name__ == "__main__":

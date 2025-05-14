@@ -1,6 +1,6 @@
 import pandas as pd
 import flet as ft
-from engine import *
+import engine
 
 class MainApplication:
     def __init__(self):
@@ -20,10 +20,8 @@ class MainApplication:
             width=500
         )
 
-        self.sheet_name_input = ft.TextField(label="Sheet Name", width=300)
-        self.column_name_input = ft.TextField(label="Column Name", width=300)
-
-        self.search_button = ft.ElevatedButton(text="Search Column", on_click=self.on_search_click)
+        self.project_name_input = ft.TextField(label="Project Title", width=300)
+        self.generate_button = ft.ElevatedButton(text="Generate", on_click=self.on_generate_click)
 
         self.status_text = ft.Text(value="No file selected", color="grey")
         self.output_column_data = ft.TextField(
@@ -51,9 +49,8 @@ class MainApplication:
                         self.file_path_input
                     ]),
                     ft.Row([
-                        self.sheet_name_input, 
-                        self.column_name_input]),
-                    self.search_button,
+                        self.project_name_input]),
+                    self.generate_button,
                     self.status_text,
                     self.output_column_data
                 ],
@@ -74,34 +71,10 @@ class MainApplication:
         self.file_path_input.update()
         self.status_text.update()
 
-    def on_search_click(self, e):
-        if not self.selected_file_path:
-            self.status_text.value = "Please select a file first."
-            self.status_text.color = "red"
-            self.status_text.update()
-            return
+    def on_generate_click(self, e):
+        self.status_text.value = "Please enter both sheet name and column name."
 
-        sheet = self.sheet_name_input.value.strip()
-        col = self.column_name_input.value.strip()
-
-        if not sheet or not col:
-            self.status_text.value = "Please enter both sheet name and column name."
-            self.status_text.color = "red"
-            self.status_text.update()
-            return
-
-        try:
-            values = extract_column_from_sheet(self.selected_file_path, sheet, col)
-            self.output_column_data.value = "\n".join(map(str, values))
-            self.status_text.value = f"Found {len(values)} values in column '{col}'"
-            self.status_text.color = "green"
-        except Exception as err:
-            self.output_column_data.value = ""
-            self.status_text.value = str(err)
-            self.status_text.color = "red"
-
-        self.status_text.update()
-        self.output_column_data.update()
+        engine.test()
 
 if __name__ == "__main__":
     app = MainApplication()

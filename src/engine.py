@@ -133,7 +133,7 @@ def write_excel_table(df, output_path="output1.xlsx", sheet_name="Sheet1", table
 def additional_sheet():
    pass
 
-def lithology_extract(input_file):
+def lithology_extract(input_file, project_name=""):
     input_columns = ["Bore", "Depth1", "Depth2", "Keyword", "Comment"]
     output_columns = ["* Name [-]", "Depth top [m]", "Depth bottom [m]", "Lithology [-]", "Remarks lithology [-]"]
     column_map = dict(zip(input_columns, output_columns))
@@ -141,11 +141,11 @@ def lithology_extract(input_file):
     reference = {
         "input_sheet":"Lithology",
         "output_sheet":"INPUT Lithology",
-        "output_path":"Lithology_Input_Template_rev2.xlsx"
+        "output_path":project_name+"Lithology_Input_Template_rev2.xlsx"
     }
     process_excel(input_file, column_map, reference)
 
-def borehole_extract(input_file):
+def borehole_extract(input_file, project_name=""):
     input_columns = ["Bore","Enabled","Easting","Northing","Elevation","TotalDepth","CollarElevation","Comments"]
     output_columns = ["* Name [-]","* Easting [m]","* Northing [m]","* Elevation [m reference]","* Ground water table [m below elevation]","Notes [-]"]
     column_map = dict(zip(input_columns, output_columns))
@@ -156,11 +156,11 @@ def borehole_extract(input_file):
         "additional_columns":additional_columns,
         "input_sheet":"Location",
         "output_sheet":"INPUT Borehole",
-        "output_path":"Borehole_Base_Input_Template_rev2.xlsx"
+        "output_path":project_name+"Borehole_Base_Input_Template_rev2.xlsx"
     }
     process_excel(input_file, column_map, reference)
 
-def soil_extract(input_file):
+def soil_extract(input_file, project_name=""):
     input_columns = ["Bore", "Depth1", "Depth2", "Name", "Value"]
     output_columns = ["Investigation Point", "Depth top [m]", "Depth Bottom [m]", "Parameter", "Test Result"]
     column_map = dict(zip(input_columns, output_columns))
@@ -171,7 +171,7 @@ def soil_extract(input_file):
         "additional_columns":additional_columns,
         "input_sheet":"Interval",
         "output_sheet":"INPUT Soil Test",
-        "output_path":"Soil_Test_Input_Template_rev2.xlsx",
+        "output_path":project_name+"Soil_Test_Input_Template_rev2.xlsx",
         "additional_input_file":"C:\\Workspace\\gtatool\\src\\input\\soil test reference list.xlsx",
         "additional_input_sheet":"List",
         "additional_table":"Test_results",
@@ -179,10 +179,15 @@ def soil_extract(input_file):
     }
     process_excel(input_file, column_map, reference)
 
+def main(input_file, project_name):
+    lithology_extract(input_file, project_name)
+    borehole_extract(input_file, project_name)
+    soil_extract(input_file, project_name)
+
 def test():
     input_file = "C:\\Workspace\\gtatool\\src\\input\\203935 Grimsby Riverside - Soil data 1.xlsx"
-    # lithology_extract(input_file)
-    # borehole_extract(input_file)
+    lithology_extract(input_file, project_name="Test")
+    borehole_extract(input_file)
     soil_extract(input_file)
 
 if __name__ == "__main__":

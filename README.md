@@ -2,7 +2,11 @@
 
 ## Run the app
 
-### uv
+### using uv
+
+```
+uv sync
+```
 
 Run as a desktop app:
 
@@ -16,27 +20,31 @@ Run as a web app:
 uv run flet run --web
 ```
 
-### Poetry
+### Vanilla
 
-Install dependencies from `pyproject.toml`:
-
-```
-poetry install
-```
-
-Run as a desktop app:
+Create a virtual environment
 
 ```
-poetry run flet run
+python -m venv .venv
 ```
 
-Run as a web app:
+activate virtual environment
 
 ```
-poetry run flet run --web
+.\.venv\Scripts\activate
 ```
 
-For more details on running the app, refer to the [Getting Started Guide](https://flet.dev/docs/getting-started/).
+Install dependencies:
+
+```
+pip install requirements.txt
+```
+
+Run as app:
+
+```
+flet run
+```
 
 ## Build the app
 

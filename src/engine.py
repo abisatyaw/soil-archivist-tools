@@ -1,4 +1,6 @@
 import pandas as pd
+import sys
+import os
 from openpyxl.worksheet.table import Table, TableStyleInfo
 from openpyxl.utils.dataframe import dataframe_to_rows
 from openpyxl import Workbook, load_workbook
@@ -83,12 +85,13 @@ def process_excel(input_file_path: str, column_map: dict, reference: dict):
     df = pd.DataFrame(data_dictionary)
     df.rename(columns=column_map, inplace=True)
 
-    write_excel_table(df, output_path=reference.get('output_path'), sheet_name=reference.get('output_sheet'))
+    write_excel_table(df, filename=reference.get('filename'), sheet_name=reference.get('output_sheet'))
         
     if reference.get("additional_table") is not None :
         additional_data = extract_column_from_sheet(file_path=reference.get("additional_input_file"), sheet_name=reference.get("additional_input_sheet"), input_columns=reference.get("additional_input_columns"))
         adf = pd.DataFrame(additional_data)
-        wb = load_workbook(reference.get('output_path'))
+        ref = get_dir(reference.get('filename'))
+        wb = load_workbook(ref)
         ws = wb.create_sheet(title="List")
         for r in dataframe_to_rows(adf, index=False, header=True):
             ws.append(r)
@@ -106,9 +109,9 @@ def process_excel(input_file_path: str, column_map: dict, reference: dict):
         )
         table.tableStyleInfo = style
         ws.add_table(table)
-        wb.save(reference.get('output_path'))
+        wb.save(ref)
 
-def write_excel_table(df, output_path="output1.xlsx", sheet_name="Sheet1", table_name="Table1"):
+def write_excel_table(df, filename="output1.xlsx", sheet_name="Sheet1", table_name="Table1"):
     wb = Workbook()
     ws = wb.active
     ws.title = sheet_name
@@ -128,10 +131,17 @@ def write_excel_table(df, output_path="output1.xlsx", sheet_name="Sheet1", table
     )
     table.tableStyleInfo = style
     ws.add_table(table)
+    output_path = get_dir(filename)
     wb.save(output_path)
+    print(f"Saved to: {output_path}")
 
-def additional_sheet():
-   pass
+def get_dir(filename):
+    if getattr(sys, 'frozen', False):
+        base_dir = os.path.dirname(sys.executable)
+    else:
+        base_dir = os.path.dirname(os.path.abspath(__file__))
+    output_path = os.path.join(base_dir, filename)
+    return output_path
 
 def lithology_extract(input_file, project_name=""):
     input_columns = ["Bore", "Depth1", "Depth2", "Keyword", "Comment"]
@@ -141,7 +151,7 @@ def lithology_extract(input_file, project_name=""):
     reference = {
         "input_sheet":"Lithology",
         "output_sheet":"INPUT Lithology",
-        "output_path":project_name+"Lithology_Input_Template_rev2.xlsx"
+        "filename":project_name+"Lithology_Input_Template_rev2.xlsx"
     }
     process_excel(input_file, column_map, reference)
 
@@ -156,7 +166,7 @@ def borehole_extract(input_file, project_name=""):
         "additional_columns":additional_columns,
         "input_sheet":"Location",
         "output_sheet":"INPUT Borehole",
-        "output_path":project_name+"Borehole_Base_Input_Template_rev2.xlsx"
+        "filename":project_name+"Borehole_Base_Input_Template_rev2.xlsx"
     }
     process_excel(input_file, column_map, reference)
 
@@ -166,13 +176,13 @@ def soil_extract(input_file, project_name=""):
     column_map = dict(zip(input_columns, output_columns))
 
     additional_columns = ["Test Date [DD-MM-YYYY]","AGS Code","Unit","Accuracy"]
-
+    ads = get_dir("soil test reference list.xlsx")
     reference = {
         "additional_columns":additional_columns,
         "input_sheet":"Interval",
         "output_sheet":"INPUT Soil Test",
-        "output_path":project_name+"Soil_Test_Input_Template_rev2.xlsx",
-        "additional_input_file":"C:\\Workspace\\gtatool\\src\\input\\soil test reference list.xlsx",
+        "filename":project_name+"Soil_Test_Input_Template_rev2.xlsx",
+        "additional_input_file": ads,
         "additional_input_sheet":"List",
         "additional_table":"Test_results",
         "additional_input_columns": ["Test name", "AGS Code", "Unit", "Accuracy", "Type (for sorting)", "Remarks"]

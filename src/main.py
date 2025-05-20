@@ -1,5 +1,8 @@
-import pandas as pd
 import flet as ft
+
+import os
+import sys
+
 import engine
 
 class MainApplication:
@@ -22,6 +25,7 @@ class MainApplication:
 
         self.project_name_input = ft.TextField(label="Project Title", width=300)
         self.generate_button = ft.ElevatedButton(text="Generate", on_click=self.on_generate_click)
+        self.debug_button = ft.ElevatedButton(text="Debug", on_click=self.on_debug_click)
 
         self.status_text = ft.Text(value="No file selected", color="grey")
         self.output_column_data = ft.TextField(
@@ -50,7 +54,9 @@ class MainApplication:
                     ]),
                     ft.Row([
                         self.project_name_input]),
-                    self.generate_button,
+                    ft.Row([
+                        self.generate_button,
+                        self.debug_button]),
                     self.status_text,
                     self.output_column_data
                 ],
@@ -63,7 +69,7 @@ class MainApplication:
         if e.files:
             self.selected_file_path = e.files[0].path
             self.file_path_input.value = e.files[0].name  # Show only filename
-            self.status_text.value = "File selected. Enter sheet and column name to search."
+            self.status_text.value = "File selected. Enter project name and generate input."
             self.status_text.color = "blue"
         else:
             self.status_text.value = "No file selected"
@@ -72,9 +78,36 @@ class MainApplication:
         self.status_text.update()
 
     def on_generate_click(self, e):
-        self.status_text.value = "Please enter both sheet name and column name."
+        if not self.selected_file_path:
+            self.status_text.value = "Please select a file first."
+            self.status_text.color = "red"
+            self.status_text.update()
+            return
+        project_name = self.project_name_input.value.strip() + "_"
+        try:
+            engine.main(self.selected_file_path, project_name)
+            self.output_column_data.value = "finish writing at: " + str(os.getcwd())
+            self.status_text.color = "green"
+        except Exception as err:
+            self.output_column_data.value = "failed"
+            self.status_text.value = str(err)
+            self.status_text.color = "red"
 
-        engine.test()
+        self.status_text.update()
+        self.output_column_data.update()
+    
+    def on_debug_click(self, e):
+        debug = {
+            "current working directory" : os.getcwd(),
+            "base directory" : os.path.dirname(sys.executable),
+            "soil test reference" : "found" if os.path.exists(os.path.join(os.path.dirname(sys.executable), "soil test reference.xlsx")) else "not found"
+        }
+        self.output_column_data.value = debug
+        self.status_text.value = "debug"
+        self.status_text.color = "red"
+        self.status_text.update()
+        self.output_column_data.update()
+
 
 if __name__ == "__main__":
     app = MainApplication()
